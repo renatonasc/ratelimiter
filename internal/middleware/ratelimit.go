@@ -3,9 +3,9 @@ package middleware
 import (
 	"log"
 	"net/http"
-	"renatonasc/ratelimit/internal/usecase"
 
-	"github.com/redis/go-redis/v9"
+	"renatonasc/ratelimit/internal/infra/database"
+	"renatonasc/ratelimit/internal/usecase"
 )
 
 type RateLimit struct {
@@ -13,10 +13,10 @@ type RateLimit struct {
 	MaxRequestIp    int
 	BlockTimeIp     int
 	BlockTimeToken  int
-	rdb             *redis.Client
+	rdb             database.DBClient
 }
 
-func NewRateLimit(maxRequestToken, maxRequestIp, blockTimeIp int, blockTimeToken int, rdb *redis.Client) *RateLimit {
+func NewRateLimit(maxRequestToken, maxRequestIp, blockTimeIp int, blockTimeToken int, rdb database.DBClient) *RateLimit {
 	return &RateLimit{
 		MaxRequestToken: maxRequestToken,
 		MaxRequestIp:    maxRequestIp,

@@ -1,15 +1,11 @@
 package database
 
 import (
-	"fmt"
-
-	"github.com/redis/go-redis/v9"
+	"context"
+	"time"
 )
 
-func NewRedis(host string, port string) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", host, port),
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+type DBClient interface {
+	Expire(ctx context.Context, key string, expiration time.Duration) error
+	Incr(ctx context.Context, key string) (int64, error)
 }

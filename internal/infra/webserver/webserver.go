@@ -2,11 +2,14 @@ package webserver
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httplog/v2"
 
 	customMiddleware "renatonasc/ratelimit/internal/middleware"
 )
@@ -61,30 +64,30 @@ func (s *WebServer) Start(rl *customMiddleware.RateLimit) {
 	defer logFile.Close()
 
 	// Logger
-	// logger := httplog.NewLogger("httplog", httplog.Options{
-	// 	JSON:             true,
-	// 	LogLevel:         slog.LevelDebug,
-	// 	Concise:          true,
-	// 	RequestHeaders:   true,
-	// 	ResponseHeaders:  true,
-	// 	MessageFieldName: "message",
-	// 	// TimeFieldFormat: time.RFC850,
-	// 	Tags: map[string]string{
-	// 		"version": "v1.0-81aa4244d9fc8076a",
-	// 		"env":     "dev",
-	// 	},
-	// 	QuietDownRoutes: []string{
-	// 		"/",
-	// 		"/ping",
-	// 	},
-	// 	QuietDownPeriod: 10 * time.Second,
-	// 	// SourceFieldName: "source",
-	// 	Writer: logFile,
-	// })
+	logger := httplog.NewLogger("httplog", httplog.Options{
+		JSON:             true,
+		LogLevel:         slog.LevelDebug,
+		Concise:          true,
+		RequestHeaders:   true,
+		ResponseHeaders:  true,
+		MessageFieldName: "message",
+		// TimeFieldFormat: time.RFC850,
+		Tags: map[string]string{
+			"version": "v1.0-81aa4244d9fc8076a",
+			"env":     "dev",
+		},
+		QuietDownRoutes: []string{
+			"/",
+			"/ping",
+		},
+		QuietDownPeriod: 10 * time.Second,
+		// SourceFieldName: "source",
+		Writer: logFile,
+	})
 
 	s.Router.Use(rl.RateLimitMiddleware)
 	s.Router.Use(middleware.Logger)
-	// s.Router.Use(httplog.RequestLogger(logger))
+	s.Router.Use(httplog.RequestLogger(logger))
 	s.Router.Use(middleware.Recoverer)
 	s.Router.Use(middleware.Heartbeat("/ping"))
 	//OpenAPI
