@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  ratelimit-app:
+    image: golang:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+        sh -c "
+        cd cmd/server &&
+        go mod download &&
+        go run server.go ||
+        echo 'Falha ao iniciar o servidor Go. Verifique os logs para mais detalhes.'"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
